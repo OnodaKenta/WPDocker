@@ -1,0 +1,43 @@
+version: "3.7"
+services:
+  mysql:
+    image: mysql:5.7
+    restart: unless-stopped
+    networks:
+    - wptest
+    volumes:
+    - mysqlvolume:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: password
+  
+  wordpress:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+    - mysql
+    networks:
+    - wptest
+    volumes:
+    - wpvolume:/var/www/html
+    ports:
+    - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: mysql:3306
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: password
+
+networks:
+  wptest:
+    driver: bridge
+
+volumes:
+  mysqlvolume:
+    driver: local
+  wpvolume:
+    driver: local
